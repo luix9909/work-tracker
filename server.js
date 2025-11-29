@@ -19,10 +19,16 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json());
 
 app.use(session({
-  secret: process.env.SESSION_SECRET || 'super-secret-key-change-this-in-render',
+  secret: process.env.SESSION_SECRET || 'super-secret-2025-enjoy-tracker',
   resave: false,
   saveUninitialized: false,
-  cookie: { secure: process.env.NODE_ENV === 'production', maxAge: 24 * 60 * 60 * 1000 }
+  cookie: {
+    secure: true,              // مهم جدًا في Render
+    httpOnly: true,
+    sameSite: 'none',          // الحل السحري
+    domain: '.onrender.com',   // الحل السحري الثاني
+    maxAge: 24 * 60 * 60 * 1000
+  }
 }));
 
 // ====================== الصفحة الرئيسية → login.html ======================
@@ -103,7 +109,7 @@ app.get('/callback', async (req, res) => {
       };
     }
 
-    res.redirect('/dashboard.html');
+res.redirect('/dashboard.html?loggedin=true');
 
   } catch (err) {
     console.error(err);
@@ -194,7 +200,8 @@ app.get('/dashboard.html', (req, res) => {
     res.redirect('/');
   }
 });
-
+// إصلاح مشكلة الكوكيز في Render (مهم جدًا)
+app.set('trust proxy', 1);
 // ====================== تشغيل السيرفر ======================
 app.listen(PORT, () => {
   console.log(`السيرفر شغال على الرابط: https://work-tracker-zrww.onrender.com`);

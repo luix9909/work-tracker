@@ -6,7 +6,7 @@ const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// المتغيرات من Environment (مهم جدًا)
+// المتغيرات من Environment (مضمونة من Render)
 const CLIENT_ID      = process.env.CLIENT_ID;
 const CLIENT_SECRET  = process.env.CLIENT_SECRET;
 const BOT_TOKEN      = process.env.BOT_TOKEN;
@@ -15,7 +15,9 @@ const GUILD_ID       = process.env.GUILD_ID;
 const REQUIRED_ROLES = process.env.REQUIRED_ROLES ? process.env.REQUIRED_ROLES.split(',').map(r => r.trim()) : [];
 const WEBHOOK_URL    = process.env.WEBHOOK_URL;
 
-// Middleware مهمة جدًا (كانت ناقصة عندك)
+const users = {}; // تخزين مؤقت
+
+// Middleware (مهم جدًا - كانت ناقصة)
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json());
 app.use(session({
@@ -24,8 +26,6 @@ app.use(session({
   saveUninitialized: false,
   cookie: { secure: process.env.NODE_ENV === 'production' }
 }));
-
-const users = {};
 
 // Routes
 app.get('/login', (req, res) => {
@@ -69,26 +69,26 @@ app.get('/callback', async (req, res) => {
     });
     const member = await memberRes.json();
 
-    if (!member.roles.some(r => REQUIRED_ROLES.includes(r))) {
+    if (!member.roles || !member.roles.some(r => REQUIRED_ROLES.includes(r))) {
       return res.send('<h1 style="color:red;text-align:center">الرتبة غير مصرحة!</h1>');
     }
 
     req.session.user = {
       id: user.id,
-      tag: user.global_name || `${user.username}#${user.discriminator}`,
-      avatar: user.avatar ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png?size=128` : `https://cdn.discordapp.com/embed/avatars/${user.discriminator % 5}.png`
+      tag: user.global_name || `${user.username}#${user.discriminator || '0000'}`,
+      avatar: user.avatar ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png?size=128` : `https://cdn.discordapp.com/embed/avatars/${(user.discriminator || 0) % 5}.png`
     };
 
     if (!users[user.id]) {
       users[user.id] = { totalSeconds: 0, sessions: [], currentSession: null };
     }
 
-    await sendWebhook(`**${req.session.user.tag}** سجّل دخول - مرحباً بالعمل!`);
+    await sendWebhook(`✅ **${req.session.user.tag}** سجّل دخول - مرحباً بالعمل!`);
     res.redirect('/');
 
   } catch (e) {
     console.error('Callback Error:', e);
-    res.send('<h1 style="color:red">خطأ غير متوقع</h1>');
+    res.send('<h1 style="color:red;text-align:center">خطأ غير متوقع: ' + e.message + '</h1>');
   }
 });
 
@@ -100,9 +100,10 @@ app.get('/api/user', (req, res) => {
 app.post('/api/start', async (req, res) => {
   if (!req.session.user) return res.json({ success: false });
   const uid = req.session.user.id;
+  if (!users[uid]) users[uid] = { totalSeconds: 0, sessions: [], currentSession: null };
   if (!users[uid].currentSession) {
     users[uid].currentSession = { start: Date.now(), pausedTime: 0, isPaused: false };
-    await sendWebhook(`**${req.session.user.tag}** بدأ جلسة عمل جديدة`);
+    await sendWebhook(`▶️ **${req.session.user.tag}** بدأ جلسة عمل جديدة`);
   }
   res.json({ success: true });
 });
@@ -131,12 +132,12 @@ app.post('/api/resume', (req, res) => {
 app.post('/api/stop', async (req, res) => {
   if (!req.session.user) return res.json({ success: false });
   const uid = req.session.user.id;
-  const sess = users[uid].currentSession;
+  const sess = users[uid]?.currentSession;
   if (sess) {
     const duration = Math.floor((Date.now() - sess.start - sess.pausedTime) / 1000);
     users[uid].totalSeconds += duration;
     users[uid].sessions.push({ date: new Date().toLocaleDateString('ar-EG'), duration });
-    await sendWebhook(`**${req.session.user.tag}** سجّل خروج - قضى **${formatTime(duration)}**`);
+    await sendWebhook(`🚪 **${req.session.user.tag}** سجّل خروج - قضى **${formatTime(duration)}**`);
     users[uid].currentSession = null;
   }
   res.json({ success: true });
@@ -147,10 +148,12 @@ app.get('/logout', (req, res) => {
   res.redirect('/');
 });
 
+// Route الرئيسية (للـ index.html)
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
+// Functions
 async function sendWebhook(content) {
   try {
     await fetch(WEBHOOK_URL, {
@@ -168,6 +171,7 @@ function formatTime(seconds) {
   return `${h}:${m}:${s}`;
 }
 
+// Server start
 app.listen(PORT, () => {
-  console.log(`Server running on https://work-tracker-zmw.onrender.com`);
+  console.log(`Server running on port ${PORT}`);
 });

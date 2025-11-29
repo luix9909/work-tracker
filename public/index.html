@@ -1,656 +1,76 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Enjoy - تتبع ساعات العمل</title>
-  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ENJOY | تسجيل الدخول</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@700;900&family=Tajawal:wght@900&display=swap" rel="stylesheet">
   <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        body {
-            font-family: 'Cairo', sans-serif;
-            background-color: #1e1f22;
-            color: #dbdee1;
-        }
-        /* Login Page */
-        .login-page {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            background-color: #1e1f22;
-        }
-        .login-container {
-            background-color: #2c2f33;
-            padding: 40px;
-            border-radius: 15px;
-            max-width: 450px;
-            width: 90%;
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
-        }
-        .login-header {
-            text-align: center;
-            margin-bottom: 40px;
-        }
-        .login-header h1 {
-            color: #faa61a;
-            font-size: 36px;
-            margin-bottom: 10px;
-        }
-        .login-header p {
-            color: #949ba4;
-            font-size: 14px;
-        }
-        .login-form {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-        .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-        .form-group label {
-            color: #b5bac1;
-            font-weight: 600;
-            font-size: 14px;
-        }
-        .form-group input,
-        .form-group select {
-            padding: 12px 15px;
-            background-color: #1e1f22;
-            border: 2px solid #404249;
-            border-radius: 8px;
-            color: #dbdee1;
-            font-family: 'Cairo', sans-serif;
-            font-size: 14px;
-            transition: border-color 0.3s;
-        }
-        .form-group input:focus,
-        .form-group select:focus {
-            outline: none;
-            border-color: #5865f2;
-        }
-        .discord-login-btn {
-            background-color: #5865f2;
-            color: white;
-            border: none;
-            padding: 12px;
-            border-radius: 8px;
-            font-family: 'Cairo', sans-serif;
-            font-weight: 700;
-            font-size: 16px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-        .discord-login-btn:hover {
-            background-color: #4752c4;
-        }
-        .divider {
-            text-align: center;
-            color: #949ba4;
-            font-size: 12px;
-            margin: 20px 0;
-        }
-        .login-error {
-            background-color: #fa747f;
-            color: white;
-            padding: 12px;
-            border-radius: 8px;
-            text-align: center;
-            font-size: 14px;
-            display: none;
-        }
-        .login-error.show {
-            display: block;
-        }
-        /* Main App */
-        .app-container {
-            display: none;
-            height: 100vh;
-            overflow: hidden;
-            animation: fadeIn 0.5s ease-in;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .app-container.active {
-            display: flex;
-        }
-        /* Sidebar */
-        .sidebar {
-            width: 256px;
-            background-color: #2c2f33;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            border-left: 1px solid #1e1f22;
-            overflow-y: auto;
-        }
-        .logo {
-            background-color: #1e1f22;
-            padding: 15px;
-            border-radius: 10px;
-            text-align: center;
-            margin-bottom: 30px;
-        }
-        .logo h1 {
-            color: #faa61a;
-            font-size: 24px;
-            font-weight: 900;
-        }
-        .nav-menu {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-        .nav-btn {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px 15px;
-            background-color: transparent;
-            border: none;
-            color: #b5bac1;
-            cursor: pointer;
-            border-radius: 8px;
-            font-family: 'Cairo', sans-serif;
-            font-size: 14px;
-            font-weight: 600;
-            transition: background-color 0.3s;
-        }
-        .nav-btn:hover {
-            background-color: #404249;
-        }
-        .nav-icon {
-            font-size: 18px;
-            width: 20px;
-        }
-        .login-btn-sidebar {
-            background-color: #5865f2;
-            color: white;
-            padding: 12px;
-            border-radius: 8px;
-            border: none;
-            cursor: pointer;
-            font-family: 'Cairo', sans-serif;
-            font-weight: 700;
-            transition: background-color 0.3s;
-        }
-        .login-btn-sidebar:hover {
-            background-color: #4752c4;
-        }
-        /* Main Content */
-        .main-content {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-        }
-        .header {
-            background-color: #2c2f33;
-            padding: 20px 30px;
-            border-bottom: 1px solid #1e1f22;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .header h2 {
-            font-size: 20px;
-        }
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-        .user-details {
-            text-align: right;
-        }
-        .user-details p {
-            margin: 3px 0;
-        }
-        .user-details .username {
-            font-weight: 700;
-            font-size: 14px;
-        }
-        .user-details .hours {
-            color: #949ba4;
-            font-size: 12px;
-        }
-        .user-avatar {
-            width: 50px;
-            height: 50px;
-            background-color: #5865f2;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            font-weight: bold;
-        }
-        .content {
-            flex: 1;
-            padding: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow-y: auto;
-        }
-        .content-welcome {
-            text-align: center;
-        }
-        .content-welcome h1 {
-            color: #faa61a;
-            font-size: 48px;
-            margin-bottom: 20px;
-        }
-        .content-welcome p {
-            color: #949ba4;
-            font-size: 16px;
-            margin-bottom: 30px;
-        }
-        .session-card {
-            background-color: #2c2f33;
-            padding: 40px;
-            border-radius: 15px;
-            max-width: 400px;
-            width: 100%;
-        }
-        .session-card h3 {
-            text-align: center;
-            margin-bottom: 30px;
-            font-size: 20px;
-        }
-        .time-display {
-            background-color: #1e1f22;
-            padding: 30px;
-            border-radius: 10px;
-            text-align: center;
-            margin-bottom: 30px;
-        }
-        .time-display p {
-            color: #949ba4;
-            font-size: 14px;
-            margin-bottom: 10px;
-        }
-        .time-display .time {
-            color: #faa61a;
-            font-size: 48px;
-            font-family: 'Courier New', monospace;
-            font-weight: bold;
-        }
-        .session-buttons {
-            display: flex;
-            gap: 12px;
-            margin-bottom: 20px;
-        }
-        .btn {
-            flex: 1;
-            padding: 12px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-family: 'Cairo', sans-serif;
-            font-weight: 700;
-            font-size: 14px;
-            transition: opacity 0.3s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-        .btn:hover {
-            opacity: 0.9;
-        }
-        .btn-pause {
-            background-color: #faa61a;
-            color: white;
-        }
-        .btn-pause.paused {
-            background-color: #43B581;
-        }
-        .btn-logout {
-            background-color: #fa747f;
-            color: white;
-            width: 100%;
-        }
-        .total-hours {
-            background-color: #1e1f22;
-            padding: 15px;
-            border-radius: 8px;
-            text-align: center;
-            color: #949ba4;
-            font-size: 14px;
-        }
-        /* Modal */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.7);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
-        }
-        .modal.active {
-            display: flex;
-        }
-        .modal-content {
-            background-color: #2c2f33;
-            padding: 30px;
-            border-radius: 12px;
-            max-width: 400px;
-            width: 90%;
-        }
-        .modal-header {
-            margin-bottom: 20px;
-        }
-        .modal-header h2 {
-            font-size: 20px;
-            margin-bottom: 8px;
-        }
-        .modal-header p {
-            color: #949ba4;
-            font-size: 14px;
-        }
-        .modal-buttons {
-            display: flex;
-            gap: 12px;
-        }
-        .btn-primary {
-            flex: 1;
-            padding: 12px;
-            background-color: #5865f2;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-family: 'Cairo', sans-serif;
-            font-weight: 700;
-            transition: background-color 0.3s;
-        }
-        .btn-primary:hover {
-            background-color: #4752c4;
-        }
-        .btn-secondary {
-            flex: 1;
-            padding: 12px;
-            background-color: #404249;
-            color: #dbdee1;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-family: 'Cairo', sans-serif;
-            font-weight: 700;
-            transition: background-color 0.3s;
-        }
-        .btn-secondary:hover {
-            background-color: #52555c;
-        }
-        .loading {
-            text-align: center;
-            color: #949ba4;
-        }
-        .spinner {
-            border: 4px solid #404249;
-            border-top: 4px solid #5865f2;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 15px;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        /* إضافات جديدة */
-        .notification {
-          position: fixed;
-          top: 20px;
-          left: 50%;
-          transform: translateX(-50%);
-          background: #faa61a;
-          color: #000;
-          padding: 15px 30px;
-          border-radius: 12px;
-          font-weight: bold;
-          z-index: 9999;
-          animation: slideDown 0.5s;
-          display: none;
-        }
-        @keyframes slideDown {
-          from { transform: translate(-50%, -100px); opacity: 0; }
-          to { transform: translate(-50%, 0); opacity: 1; }
-        }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      height: 100vh;
+      background: linear-gradient(135deg, #0f0f10 0%, #1e1f22 100%);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Cairo', sans-serif;
+      overflow: hidden;
+    }
+    .login-box {
+      background: #2c2f33;
+      padding: 60px 50px;
+      border-radius: 24px;
+      text-align: center;
+      box-shadow: 0 30px 60px rgba(0,0,0,0.7);
+      width: 90%;
+      max-width: 460px;
+      animation: float 8s ease-in-out infinite;
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-20px); }
+    }
+    h1 {
+      font-family: 'Tajawal', sans-serif;
+      font-size: 90px;
+      color: #faa61a;
+      margin-bottom: 15px;
+      text-shadow: 0 10px 30px rgba(250,166,26,0.4);
+    }
+    p {
+      color: #949ba4;
+      font-size: 20px;
+      margin-bottom: 40px;
+    }
+    .discord-btn {
+      background: #5865f2;
+      color: white;
+      border: none;
+      padding: 18px 60px;
+      font-size: 22px;
+      font-weight: 700;
+      border-radius: 16px;
+      cursor: pointer;
+      transition: all 0.4s;
+      box-shadow: 0 12px 30px rgba(88,101,242,0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin: 0 auto;
+    }
+    .discord-btn:hover {
+      background: #4752c4;
+      transform: translateY(-6px);
+      box-shadow: 0 18px 40px rgba(88,101,242,0.6);
+    }
   </style>
 </head>
 <body>
-<div id="loginPage" class="login-page">
-  <div class="login-container">
-    <h1 style="color:#faa61a;text-align:center">Enjoy</h1>
-    <p style="text-align:center">نظام تتبع ساعات العمل الرسمي</p>
-    <button class="discord-login-btn" id="discordLogin">
-      <img src="https://cdn.discordapp.com/attachments/.../discord-logo-white.png" width="20" style="margin-left:8px">
+  <div class="login-box">
+    <h1>ENJOY</h1>
+    <p>نظام تتبع ساعات العمل الرسمي</p>
+    <button class="discord-btn" onclick="location.href='/login'">
       تسجيل الدخول عبر Discord
     </button>
   </div>
-</div>
-<div id="app" class="app-container">
-  <!-- Sidebar + Header (نفس اللي عندك) -->
-  <div class="sidebar">
-            <div class="logo">
-                <h1>Enjoy</h1>
-            </div>
-            <div class="nav-menu">
-                <button class="nav-btn">
-                    <span class="nav-icon">🏠</span>
-                    <span>الرئيسية</span>
-                </button>
-                <button class="nav-btn">
-                    <span class="nav-icon">👥</span>
-                    <span>المجموعات</span>
-                </button>
-                <button class="nav-btn">
-                    <span class="nav-icon">⚙️</span>
-                    <span>الإعدادات</span>
-                </button>
-                <button class="nav-btn">
-                    <span class="nav-icon">🛡️</span>
-                    <span>الحماية</span>
-                </button>
-                <button class="nav-btn">
-                    <span class="nav-icon">⚡</span>
-                    <span>التطبيقات</span>
-                </button>
-            </div>
-            <button class="login-btn-sidebar" id="logoutBtnSidebar">تسجيل الخروج</button>
-  </div>
-  <!-- Main Content -->
-  <div class="main-content">
-    <!-- Header -->
-    <div class="header">
-      <h2>مرحبا بك في النظام</h2>
-      <div class="user-info">
-        <div class="user-details">
-          <p class="username" id="headerUsername">المستخدم</p>
-          <p class="hours">الساعات: <span id="headerHours">00:00:00</span></p>
-        </div>
-        <div class="user-avatar" id="userAvatar">👤</div>
-      </div>
-    </div>
-    <!-- Content -->
-    <div class="content">
-      <div id="welcomeContent" class="content-welcome">
-        <h1>مرحبا بك</h1>
-        <p>اضغط على زر تسجيل الدخول لبدء العمل</p>
-      </div>
-      <div id="sessionContent" style="display: none; width: 100%;">
-        <div class="session-card">
-          <h3>جلسة العمل الحالية</h3>
-          <div class="time-display">
-            <p>إجمالي الوقت</p>
-            <div class="time" id="timeDisplay">00:00:00</div>
-          </div>
-          <div class="session-buttons">
-            <button class="btn btn-pause" id="pauseBtn">
-              <span>⏸️</span>
-              <span>إيقاف مؤقت</span>
-            </button>
-          </div>
-          <button class="btn btn-logout" id="logoutBtn">
-            <span>🚪</span>
-            <span>تسجيل الخروج</span>
-          </button>
-          <div class="total-hours">
-            إجمالي ساعات العمل: <span id="totalHours">00:00:00</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-<div class="notification" id="notif"></div>
-<audio id="alertSound" src="https://cdn.discordapp.com/attachments/1289396000642076682/129044123456789012/alert.mp3" preload="auto"></audio>
-<script>
-let userData = null;
-let sessionStart = null;
-let pausedTime = 0;
-let pauseStart = null;
-let timerInterval = null;
-let warningInterval = null;
-const notif = document.getElementById('notif');
-const alertSound = document.getElementById('alertSound');
-document.getElementById('discordLogin').onclick = () => location.href = '/login';
-document.getElementById('logoutBtn').onclick = () => location.href = '/logout';
-document.getElementById('logoutBtnSidebar').onclick = () => location.href = '/logout';
-async function loadUser() {
-  const res = await fetch('/api/user');
-  const data = await res.json();
-  if (!data || !data.user) {
-    document.getElementById('loginPage').style.display = 'flex';
-    document.getElementById('app').style.display = 'none';
-    return;
-  }
-  userData = data;
-  document.getElementById('loginPage').style.display = 'none';
-  document.getElementById('app').classList.add('active');
-  document.getElementById('headerUsername').textContent = data.user.tag;
-  document.getElementById('headerHours').textContent = format(data.stats.totalSeconds);
-  document.getElementById('userAvatar').innerHTML = `<img src="${data.user.avatar}" alt="Avatar" style="width:100%;height:100%;border-radius:50%">`;
-  updateTimeDisplay();
-  updateTotalTime();
-  renderHistory();
-  if (data.stats.currentSession) {
-    sessionStart = data.stats.currentSession.start;
-    pausedTime = data.stats.currentSession.pausedTime || 0;
-    pauseStart = data.stats.currentSession.isPaused ? data.stats.currentSession.pauseStart : null;
-    document.getElementById('startBtn').disabled = true;
-    document.getElementById('pauseBtn').disabled = !pauseStart;
-    document.getElementById('resumeBtn').disabled = !!pauseStart;
-    document.getElementById('stopBtn').disabled = false;
-    startTimer();
-    showNotif('مرحباً بك مرة أخرى! جلسة مستمرة');
-  }
-}
-function startTimer() {
-  timerInterval = setInterval(() => {
-    if (!pauseStart) {
-      const elapsed = Math.floor((Date.now() - sessionStart - pausedTime) / 1000);
-      document.getElementById('timeDisplay').textContent = format(elapsed);
-      updateTotalTime();
-    }
-  }, 1000);
-  warningInterval = setInterval(() => {
-    if (sessionStart && !pauseStart) {
-      const elapsed = Math.floor((Date.now() - sessionStart - pausedTime) / 1000);
-      if (elapsed > 0 && elapsed % 600 === 0) {
-        alertSound.play();
-        showNotif('⏰ لا تنسى تسجيل الخروج!');
-      }
-    }
-  }, 1000);
-}
-function showNotif(msg, duration = 3000) {
-  notif.textContent = msg;
-  notif.style.display = 'block';
-  setTimeout(() => notif.style.display = 'none', duration);
-}
-document.getElementById('startBtn').onclick = async () => {
-  await fetch('/api/start', {method:'POST'});
-  sessionStart = Date.now();
-  pausedTime = 0;
-  pauseStart = null;
-  document.getElementById('startBtn').disabled = true;
-  document.getElementById('pauseBtn').disabled = false;
-  document.getElementById('stopBtn').disabled = false;
-  startTimer();
-  showNotif('تم تسجيل الدخول بنجاح ✅');
-};
-document.getElementById('pauseBtn').onclick = async () => {
-  await fetch('/api/pause', {method:'POST'});
-  pauseStart = Date.now();
-  document.getElementById('pauseBtn').disabled = true;
-  document.getElementById('resumeBtn').disabled = false;
-  showNotif('تم إيقاف الجلسة مؤقتًا');
-};
-document.getElementById('resumeBtn').onclick = async () => {
-  await fetch('/api/resume', {method:'POST'});
-  pausedTime += Date.now() - pauseStart;
-  pauseStart = null;
-  document.getElementById('pauseBtn').disabled = false;
-  document.getElementById('resumeBtn').disabled = true;
-  showNotif('تم استئناف الجلسة');
-};
-document.getElementById('stopBtn').onclick = async () => {
-  if (!confirm('هل أنت متأكد من تسجيل الخروج؟')) return;
-  await fetch('/api/stop', {method:'POST'});
-  clearInterval(timerInterval);
-  clearInterval(warningInterval);
-  showNotif('تم تسجيل الخروج بنجاح 🚪');
-  setTimeout(() => location.reload(), 1500);
-};
-function format(sec) {
-  const h = String(Math.floor(sec / 3600)).padStart(2, '0');
-  const m = String(Math.floor((sec % 3600) / 60)).padStart(2, '0');
-  const s = String(sec % 60).padStart(2, '0');
-  return `${h}:${m}:${s}`;
-}
-function updateTimeDisplay() {
-  const elapsed = sessionStart ? Math.floor((Date.now() - sessionStart - pausedTime) / 1000) : 0;
-  document.getElementById('timeDisplay').textContent = format(elapsed);
-}
-function updateTotalTime() {
-  const total = userData.stats.totalSeconds + (sessionStart ? Math.floor((Date.now() - sessionStart - pausedTime) / 1000) : 0);
-  document.getElementById('totalHours').textContent = format(total);
-  document.getElementById('headerHours').textContent = format(total);
-}
-function renderHistory() {
-  const div = document.getElementById('history');
-  div.innerHTML = '';
-  userData.stats.sessions.slice().reverse().forEach(s => {
-    const el = document.createElement('div');
-    el.textContent = `${new Date(s.date).toLocaleDateString('ar-SA')} – ${format(s.duration)}`;
-    el.style = 'padding:8px;background:#1e1f22;border-radius:6px;margin:5px 0';
-    div.appendChild(el);
-  });
-}
-setInterval(() => {
-  if (userData) {
-    updateTotalTime();
-    updateTimeDisplay();
-  }
-}, 1000);
-loadUser();
-</script>
 </body>
 </html>

@@ -1,43 +1,49 @@
+require('dotenv').config();
 const express = require('express');
 const session = require('express-session');
 const fetch = require('node-fetch');
 const path = require('path');
-
 const app = express();
+
+// ====================== المتغيرات البيئية (حطها في Render → Environment) ======================
+const CLIENT_ID = process.env.CLIENT_ID;
+const CLIENT_SECRET = process.env.CLIENT_SECRET;
+const BOT_TOKEN = process.env.BOT_TOKEN;
+const GUILD_ID = process.env.GUILD_ID; // ID السيرفر
+const REDIRECT_URI = process.env.REDIRECT_URI || 'https://work-tracker-zrww.onrender.com/callback';
+const REQUIRED_ROLES = (process.env.REQUIRED_ROLES || '').split(',').filter(Boolean); // مثال: 1431304799059579035,1431304799059579036
 const PORT = process.env.PORT || 3000;
 
-// المتغيرات من Environment (مضمونة من Render)
-const CLIENT_ID      = process.env.CLIENT_ID;
-const CLIENT_SECRET  = process.env.CLIENT_SECRET;
-const BOT_TOKEN      = process.env.BOT_TOKEN;
-const REDIRECT_URI   = process.env.REDIRECT_URI;
-const GUILD_ID       = process.env.GUILD_ID;
-const REQUIRED_ROLES = process.env.REQUIRED_ROLES ? process.env.REQUIRED_ROLES.split(',').map(r => r.trim()) : [];
-const WEBHOOK_URL    = process.env.WEBHOOK_URL;
-
-const users = {}; // تخزين مؤقت
-
-// Middleware (مهم جدًا - كانت ناقصة)
+// ====================== الإعدادات ======================
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json());
+
 app.use(session({
-  secret: 'enjoy-secret-2025',
+  secret: process.env.SESSION_SECRET || 'super-secret-key-change-this-in-render',
   resave: false,
   saveUninitialized: false,
-  cookie: { secure: process.env.NODE_ENV === 'production' }
+  cookie: { secure: process.env.NODE_ENV === 'production', maxAge: 24 * 60 * 60 * 1000 }
 }));
 
-// Routes
-app.get('/login', (req, res) => {
-  res.redirect(`https://discord.com/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=code&scope=identify%20guilds`);
+// ====================== الصفحة الرئيسية → login.html ======================
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'login.html'));
 });
 
+// ====================== تسجيل الدخول ======================
+app.get('/login', (req, res) => {
+  const scopes = 'identify guilds guilds.members.read';
+  res.redirect(`https://discord.com/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=code&scope=${scopes}`);
+});
+
+// ====================== Callback بعد تسجيل الدخول ======================
 app.get('/callback', async (req, res) => {
   const code = req.query.code;
-  if (!code) return res.send('<h1 style="color:red;text-align:center">فشل في تسجيل الدخول</h1>');
+  if (!code) return res.status(400).send('<h1 style="color:red;text-align:center">فشل تسجيل الدخول</h1>');
 
   try {
-    const tokenRes = await fetch('https://discord.com/api/oauth2/token', {
+    // جلب التوكن
+    const tokenResponse = await fetch('https://discord.com/api/oauth2/token', {
       method: 'POST',
       body: new URLSearchParams({
         client_id: CLIENT_ID,
@@ -45,133 +51,152 @@ app.get('/callback', async (req, res) => {
         grant_type: 'authorization_code',
         code: code,
         redirect_uri: REDIRECT_URI,
-      }),
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        scope: 'identify guilds guilds.members.read',
+      }).toString(),
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
     });
-    const tokens = await tokenRes.json();
 
-    const userRes = await fetch('https://discord.com/api/users/@me', {
-      headers: { Authorization: `Bearer ${tokens.access_token}` }
+    const tokenData = await tokenResponse.json();
+    if (tokenData.error) throw new Error(tokenData.error);
+
+    const accessToken = tokenData.access_token;
+
+    // جلب بيانات المستخدم
+    const userResponse = await fetch('https://discord.com/api/users/@me', {
+      headers: { Authorization: `Bearer ${accessToken}` }
     });
-    const user = await userRes.json();
+    const user = await userResponse.json();
 
-    const guildsRes = await fetch('https://discord.com/api/users/@me/guilds', {
-      headers: { Authorization: `Bearer ${tokens.access_token}` }
-    });
-    const guilds = await guildsRes.json();
-
-    if (!guilds.find(g => g.id === GUILD_ID)) {
-      return res.send('<h1 style="color:red;text-align:center">غير موجود في السيرفر المطلوب!</h1>');
-    }
-
-    const memberRes = await fetch(`https://discord.com/api/guilds/${GUILD_ID}/members/${user.id}`, {
+    // جلب عضوية السيرفر + الرتب
+    const memberResponse = await fetch(`https://discord.com/api/guilds/${GUILD_ID}/members/${user.id}`, {
       headers: { Authorization: `Bot ${BOT_TOKEN}` }
     });
-    const member = await memberRes.json();
 
-    if (!member.roles || !member.roles.some(r => REQUIRED_ROLES.includes(r))) {
+    if (!memberResponse.ok) {
+      return res.send('<h1 style="color:red;text-align:center">الرتبة غير مصرحة أو لست في السيرفر!</h1>');
+    }
+
+    const member = await memberResponse.json();
+
+    // فحص الرتب المطلوبة
+    const hasRole = member.roles.some(role => REQUIRED_ROLES.includes(role));
+    if (!hasRole && REQUIRED_ROLES.length > 0) {
       return res.send('<h1 style="color:red;text-align:center">الرتبة غير مصرحة!</h1>');
     }
 
+    // حفظ بيانات المستخدم في الجلسة
     req.session.user = {
       id: user.id,
-      tag: user.global_name || `${user.username}#${user.discriminator || '0000'}`,
-      avatar: user.avatar ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png?size=128` : `https://cdn.discordapp.com/embed/avatars/${(user.discriminator || 0) % 5}.png`
+      username: user.username,
+      discriminator: user.discriminator,
+      tag: `${user.username}#${user.discriminator}`,
+      avatar: user.avatar ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png?size=256` : 'https://cdn.discordapp.com/embed/avatars/0.png',
+      accessToken
     };
 
-    if (!users[user.id]) {
-      users[user.id] = { totalSeconds: 0, sessions: [], currentSession: null };
+    // تحميل أو إنشاء إحصائيات المستخدم
+    if (!req.session.stats) {
+      req.session.stats = {
+        totalSeconds: 0,
+        sessions: [],
+        currentSession: null
+      };
     }
 
-    await sendWebhook(`✅ **${req.session.user.tag}** سجّل دخول - مرحباً بالعمل!`);
-    res.redirect('/');
+    res.redirect('/dashboard.html');
 
-  } catch (e) {
-    console.error('Callback Error:', e);
-    res.send('<h1 style="color:red;text-align:center">خطأ غير متوقع: ' + e.message + '</h1>');
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('<h1 style="color:red;text-align:center">حدث خطأ أثناء تسجيل الدخول</h1>');
   }
 });
 
+// ====================== API: جلب بيانات المستخدم ======================
 app.get('/api/user', (req, res) => {
-  if (!req.session.user) return res.json(null);
-  res.json({ user: req.session.user, stats: users[req.session.user.id] || { totalSeconds: 0, sessions: [], currentSession: null } });
-});
-
-app.post('/api/start', async (req, res) => {
-  if (!req.session.user) return res.json({ success: false });
-  const uid = req.session.user.id;
-  if (!users[uid]) users[uid] = { totalSeconds: 0, sessions: [], currentSession: null };
-  if (!users[uid].currentSession) {
-    users[uid].currentSession = { start: Date.now(), pausedTime: 0, isPaused: false };
-    await sendWebhook(`▶️ **${req.session.user.tag}** بدأ جلسة عمل جديدة`);
-  }
-  res.json({ success: true });
-});
-
-app.post('/api/pause', (req, res) => {
-  if (!req.session.user) return res.json({ success: false });
-  const sess = users[req.session.user.id]?.currentSession;
-  if (sess && !sess.isPaused) {
-    sess.pauseStart = Date.now();
-    sess.isPaused = true;
-  }
-  res.json({ success: true });
-});
-
-app.post('/api/resume', (req, res) => {
-  if (!req.session.user) return res.json({ success: false });
-  const sess = users[req.session.user.id]?.currentSession;
-  if (sess && sess.isPaused) {
-    sess.pausedTime += Date.now() - sess.pauseStart;
-    sess.isPaused = false;
-    sess.pauseStart = null;
-  }
-  res.json({ success: true });
-});
-
-app.post('/api/stop', async (req, res) => {
-  if (!req.session.user) return res.json({ success: false });
-  const uid = req.session.user.id;
-  const sess = users[uid]?.currentSession;
-  if (sess) {
-    const duration = Math.floor((Date.now() - sess.start - sess.pausedTime) / 1000);
-    users[uid].totalSeconds += duration;
-    users[uid].sessions.push({ date: new Date().toLocaleDateString('ar-EG'), duration });
-    await sendWebhook(`🚪 **${req.session.user.tag}** سجّل خروج - قضى **${formatTime(duration)}**`);
-    users[uid].currentSession = null;
-  }
-  res.json({ success: true });
-});
-
-app.get('/logout', (req, res) => {
-  req.session.destroy();
-  res.redirect('/');
-});
-
-// Route الرئيسية (للـ index.html)
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
-
-// Functions
-async function sendWebhook(content) {
-  try {
-    await fetch(WEBHOOK_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ content })
+  if (req.session.user) {
+    res.json({
+      user: req.session.user,
+      stats: req.session.stats || { totalSeconds: 0, sessions: [], currentSession: null }
     });
-  } catch (e) { console.error('Webhook Error:', e); }
-}
+  } else {
+    res.status(401).json({ error: 'غير مسجل دخول' });
+  }
+});
 
-function formatTime(seconds) {
-  const h = String(Math.floor(seconds / 3600)).padStart(2, '0');
-  const m = String(Math.floor((seconds % 3600) / 60)).padStart(2, '0');
-  const s = String(seconds % 60).padStart(2, '0');
-  return `${h}:${m}:${s}`;
-}
+// ====================== API: ابدأ الجلسة ======================
+app.post('/api/start', (req, res) => {
+  if (!req.session.user) return res.status(401).json({ error: 'غير مسجل' });
 
-// Server start
+  if (req.session.stats.currentSession) {
+    return res.status(400).json({ error: 'يوجد جلسة مستمرة بالفعل' });
+  }
+
+  req.session.stats.currentSession = {
+    start: Date.now(),
+    pausedTime: 0,
+    isPaused: false,
+    pauseStart: null
+  };
+
+  res.json({ success: true });
+});
+
+// ====================== API: إيقاف مؤقت ======================
+app.post('/api/pause', (req, res) => {
+  if (!req.session.stats?.currentSession) return res.status(400).json({ error: 'لا توجد جلسة' });
+
+  req.session.stats.currentSession.isPaused = true;
+  req.session.stats.currentSession.pauseStart = Date.now();
+  res.json({ success: true });
+});
+
+// ====================== API: استئناف ======================
+app.post('/api/resume', (req, res) => {
+  if (!req.session.stats?.currentSession) return res.status(400).json({ error: 'لا توجد جلسة' });
+
+  const pauseDuration = Date.now() - req.session.stats.currentSession.pauseStart;
+  req.session.stats.currentSession.pausedTime += pauseDuration;
+  req.session.stats.currentSession.isPaused = false;
+  req.session.stats.currentSession.pauseStart = null;
+
+  res.json({ success: true });
+});
+
+// ====================== API: إنهاء الدوام ======================
+app.post('/api/stop', (req, res) => {
+  if (!req.session.stats?.currentSession) return res.status(400).json({ error: 'لا توجد جلسة' });
+
+  const session = req.session.stats.currentSession;
+  const duration = Math.floor((Date.now() - session.start - session.pausedTime) / 1000);
+
+  req.session.stats.totalSeconds += duration;
+  req.session.stats.sessions.push({
+    date: new Date().toLocaleDateString('ar-EG'),
+    duration: duration
+  });
+
+  req.session.stats.currentSession = null;
+  res.json({ success: true, duration });
+});
+
+// ====================== تسجيل الخروج ======================
+app.get('/logout', (req, res) => {
+  req.session.destroy(() => {
+    res.redirect('/');
+  });
+});
+
+// ====================== حماية dashboard.html (اختياري – الجافاسكربت يكفي لكن هذا أقوى) ======================
+app.get('/dashboard.html', (req, res) => {
+  if (req.session.user) {
+    res.sendFile(path.join(__dirname, 'public', 'dashboard.html'));
+  } else {
+    res.redirect('/');
+  }
+});
+
+// ====================== تشغيل السيرفر ======================
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(`السيرفر شغال على الرابط: https://work-tracker-zrww.onrender.com`);
+  console.log(`تسجيل الدخول: https://work-tracker-zrww.onrender.com`);
 });

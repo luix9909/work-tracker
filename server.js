@@ -1,18 +1,18 @@
-require('dotenv').config();
 const express = require('express');
 const session = require('express-session');
 const fetch = require('node-fetch');
 const path = require('path');
 const app = express();
 
-// ====================== المتغيرات البيئية (حطها في Render → Environment) ======================
+// ====================== جلب المتغيرات مباشرة من Render (بدون dotenv) ======================
 const CLIENT_ID = process.env.CLIENT_ID;
 const CLIENT_SECRET = process.env.CLIENT_SECRET;
 const BOT_TOKEN = process.env.BOT_TOKEN;
-const GUILD_ID = process.env.GUILD_ID; // ID السيرفر
-const REDIRECT_URI = process.env.REDIRECT_URI || 'https://work-tracker-zrww.onrender.com/callback';
-const REQUIRED_ROLES = (process.env.REQUIRED_ROLES || '').split(',').filter(Boolean); // مثال: 1431304799059579035,1431304799059579036
+const GUILD_ID = process.env.GUILD_ID;
+const REDIRECT_URI = process.env.REDIRECT_URI || `https://${process.env.RENDER_EXTERNAL_HOSTNAME || 'your-site.onrender.com'}/callback`;
+const REQUIRED_ROLES = (process.env.REQUIRED_ROLES || '').split(',').filter(r => r.trim());
 const PORT = process.env.PORT || 3000;
+const SESSION_SECRET = process.env.SESSION_SECRET || 'fallback-secret-change-in-render';
 
 // ====================== الإعدادات ======================
 app.use(express.static(path.join(__dirname, 'public')));

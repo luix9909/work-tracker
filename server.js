@@ -7,24 +7,13 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // ضع معلوماتك هنا (غيّرها)
-const CLIENT_ID = process.env.CLIENT_ID || '1444436322147242134';
-const CLIENT_SECRET = process.env.CLIENT_SECRET || 'cDQK1BxxuzlXaCAIC29qAdsI-XBwvM-P';
-const BOT_TOKEN = process.env.BOT_TOKEN || 'MTQ0NDQzNjMyMjE0NzI0MjEzNA.GFnrFu.WnP1y-kOErs5c3mgL7cXcDhAlccEgmIpni-Sn0';
-const REDIRECT_URI = process.env.REDIRECT_URI || 'https://work-tracker-zrww.onrender.com/callback';
-const GUILD_ID = process.env.GUILD_ID || '1431304799042670612';
-const REQUIRED_ROLES = process.env.REQUIRED_ROLES 
-  ? process.env.REQUIRED_ROLES.split(',').map(r => r.trim())
-  : ['1431304799059579035', '1431304799059579036'];
-const WEBHOOK_URL = process.env.WEBHOOK_URL || 'https://discord.com/api/webhooks/1444444487219679364/ZZJcgslKbMNl4y80lrbpoxo8G0ORLkOp3Q-1WmIFxBUEyW6qxBrU8hlX4VFmrklCCHCq';
-
-app.use(express.static(path.join(__dirname, 'public')));
-app.use(express.json());
-app.use(session({
-  secret: 'enjoy-secret-2025',
-  resave: false,
-  saveUninitialized: false,
-  cookie: { secure: process.env.NODE_ENV === 'production' }
-}));
+const CLIENT_ID      = process.env.CLIENT_ID;
+const CLIENT_SECRET  = process.env.CLIENT_SECRET;
+const BOT_TOKEN      = process.env.BOT_TOKEN;
+const REDIRECT_URI   = process.env.REDIRECT_URI;
+const GUILD_ID       = process.env.GUILD_ID;
+const REQUIRED_ROLES = process.env.REQUIRED_ROLES ? process.env.REQUIRED_ROLES.split(',').map(r => r.trim()) : [];
+const WEBHOOK_URL    = process.env.WEBHOOK_URL;
 
 const users = {}; // تخزين مؤقت (يمكن ترقيته لقاعدة بيانات)
 

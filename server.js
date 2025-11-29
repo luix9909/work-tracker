@@ -12,7 +12,9 @@ const CLIENT_SECRET = process.env.CLIENT_SECRET || 'cDQK1BxxuzlXaCAIC29qAdsI-XBw
 const BOT_TOKEN = process.env.BOT_TOKEN || 'MTQ0NDQzNjMyMjE0NzI0MjEzNA.GFnrFu.WnP1y-kOErs5c3mgL7cXcDhAlccEgmIpni-Sn0';
 const REDIRECT_URI = process.env.REDIRECT_URI || 'https://work-tracker-zrww.onrender.com/callback';
 const GUILD_ID = process.env.GUILD_ID || '1431304799042670612';
-const REQUIRED_ROLES = ['1431304799059579035', '1431304799059579036']; // حط IDs الرتب المسموحة (مفصولة بفاصلة)
+const REQUIRED_ROLES = process.env.REQUIRED_ROLES 
+  ? process.env.REQUIRED_ROLES.split(',').map(r => r.trim())
+  : ['1431304799059579035', '1431304799059579036'];
 const WEBHOOK_URL = process.env.WEBHOOK_URL || 'https://discord.com/api/webhooks/1444444487219679364/ZZJcgslKbMNl4y80lrbpoxo8G0ORLkOp3Q-1WmIFxBUEyW6qxBrU8hlX4VFmrklCCHCq';
 
 app.use(express.static(path.join(__dirname, 'public')));

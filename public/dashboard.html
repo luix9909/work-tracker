@@ -16,58 +16,63 @@
       --muted: #b19cd9;
     }
     body { font-family: 'Cairo', sans-serif; background: var(--bg); color: var(--text); }
-    .glass { background: rgba(26, 16, 51, 0.6); backdrop-filter: blur(16px); border: 1px solid rgba(157, 130, 255, 0.2); }
+    .glass { background: rgba(26, 16, 51, 0.7); backdrop-filter: blur(16px); border: 1px solid rgba(157, 130, 255, 0.2); }
     .btn-lavender { background: linear-gradient(135deg, var(--lavender-dark), var(--lavender)); }
-    .btn-lavender:hover { background: linear-gradient(135deg, #8b6dff, #b8a3ff); transform: translateY(-3px); box-shadow: 0 15px 30px rgba(157, 130, 255, 0.3); }
+    .btn-lavender:hover { transform: translateY(-4px); box-shadow: 0 20px 40px rgba(157, 130, 255, 0.4); }
     .timer { font-family: 'Courier New', monospace; letter-spacing: 6px; }
-    .sidebar-btn { transition: all 0.3s; }
+    .sidebar-btn { transition: all 0.3s ease; }
     .sidebar-btn.active { background: var(--lavender); color: #000; font-weight: 900; border-radius: 16px; }
+    .msg-danger { border-left: 8px solid #ef4444; background: rgba(239, 68, 68, 0.15); }
+    .msg-warning { border-left: 8px solid #f97316; background: rgba(249, 115, 22, 0.15); }
+    .msg-important { border-left: 8px solid #eab308; background: rgba(234, 179, 8, 0.15); }
+    .msg-success { border-left: 8px solid #22c55e; background: rgba(34, 197, 94, 0.15); }
+    .msg-info { border-left: 8px solid #3b82f6; background: rgba(59, 130, 246, 0.15); }
   </style>
 </head>
 <body class="min-h-screen">
 
-  <!-- حماية -->
+  <!-- حماية الصفحة -->
   <div id="protected" class="fixed inset-0 bg-black/90 flex items-center justify-center z-50">
     <div class="glass p-12 rounded-3xl text-center max-w-md">
-      <h1 class="text-5xl font-black text-red-400 mb-6">غير مصرح</h1>
-      <button onclick="location.href='/'" class="px-10 py-5 bg-[#5865f2] rounded-2xl font-bold text-xl hover:scale-105 transition">العودة</button>
+      <h1 class="text-5xl font-black text-red-400 mb-6">غير مصرح لك</h1>
+      <button onclick="location.href='/'" class="px-10 py-5 bg-[#5865f2] rounded-2xl font-bold text-xl hover:scale-105 transition">العودة لتسجيل الدخول</button>
     </div>
   </div>
 
-  <!-- التطبيق -->
+  <!-- التطبيق الرئيسي -->
   <div id="app" class="hidden flex flex-col lg:flex-row min-h-screen">
 
     <!-- Sidebar -->
     <div class="w-full lg:w-80 bg-gradient-to-b from-[#1a1033] to-[#0f0a1a] p-6 lg:p-8 flex flex-col">
       <div class="text-center mb-10">
         <h1 class="text-6xl font-black bg-gradient-to-r from-[#c8b6ff] to-[#e0c3fc] bg-clip-text text-transparent">ENJOY</h1>
-        <p class="text-[#b19cd9] mt-2">نظام تتبع الدوام الرسمي</p>
+        <p class="text-[#b19cd9] mt-2 text-sm">نظام تتبع الدوام الرسمي</p>
       </div>
 
       <nav class="space-y-4 flex-1">
-        <button onclick="openTab('home')"     class="sidebar-btn active w-full text-right py-5 px-6 text-xl font-semibold rounded-2xl">الرئيسية</button>
-        <button onclick="openTab('session')"  class="sidebar-btn w-full text-right py-5 px-6 text-xl font-semibold rounded-2xl">تسجيل الدوام</button>
-        <button onclick="openTab('logs')"     class="sidebar-btn w-full text-right py-5 px-6 text-xl font-semibold rounded-2xl">السجلات</button>
-        <button onclick="openTab('stats')"    class="sidebar-btn w-full text-right py-5 px-6 text-xl font-semibold rounded-2xl">إحصائيات السيرفر</button>
+        <button onclick="openTab('home')" class="sidebar-btn active w-full text-right py-5 px-6 text-xl font-semibold rounded-2xl transition hover:bg-white/10">الرئيسية</button>
+        <button onclick="openTab('session')" class="sidebar-btn w-full text-right py-5 px-6 text-xl font-semibold rounded-2xl transition hover:bg-white/10">تسجيل الدوام</button>
+        <button onclick="openTab('messages')" class="sidebar-btn w-full text-right py-5 px-6 text-xl font-semibold rounded-2xl transition hover:bg-white/10">الرسائل</button>
+        <button onclick="openTab('logs')" class="sidebar-btn w-full text-right py-5 px-6 text-xl font-semibold rounded-2xl transition hover:bg-white/10">السجلات</button>
       </nav>
     </div>
 
-    <!-- Main Content -->
+    <!-- المحتوى الرئيسي -->
     <div class="flex-1 flex flex-col">
-      <!-- Header -->
+      <!-- الهيدر -->
       <div class="glass p-6 flex flex-col sm:flex-row justify-between items-center border-b border-[#9d82ff]/30">
         <h2 class="text-3xl font-bold">مرحباً بعودتك</h2>
         <div id="userInfo" class="hidden flex items-center gap-5 mt-4 sm:mt-0">
           <div class="text-right">
             <p id="username" class="text-2xl font-bold"></p>
+            <p id="userRole" class="text-sm text-[#c8b6ff] font-bold"></p>
             <p class="text-[#b19cd9] text-sm">إجمالي الساعات: <span id="totalTimeHeader" class="font-black text-[#c8b6ff]">00:00:00</span></p>
           </div>
           <img id="avatar" class="w-16 h-16 rounded-full ring-4 ring-[#c8b6ff] shadow-xl" src="" alt="avatar"/>
         </div>
       </div>
 
-      <!-- Content -->
-      <div class="p-6 lg:p-10 flex-1">
+      <div class="p-6 lg:p-10 flex-1 overflow-y-auto">
 
         <!-- الرئيسية -->
         <div id="home" class="tab-content">
@@ -78,55 +83,81 @@
             </div>
             <div class="glass p-8 rounded-3xl text-center hover:scale-105 transition">
               <p class="text-5xl font-black text-green-400">1,247</p>
-              <p class="text-[#b19cd9] mt-3 text-lg">الأعضاء أونلاين</p>
+              <p class="text-[#b19cd9] mt-3 text-lg">أونلاين الآن</p>
             </div>
             <div class="glass p-8 rounded-3xl text-center hover:scale-105 transition">
               <p class="text-5xl font-black text-yellow-400">87%</p>
-              <p class="text-[#b19cd9] mt-3 text-lg">نسبة التفاعل اليوم</p>
+              <p class="text-[#b19cd9] mt-3 text-lg">نسبة التفاعل</p>
             </div>
             <div class="glass p-8 rounded-3xl text-center hover:scale-105 transition">
               <p class="text-5xl font-black text-pink-400">45</p>
               <p class="text-[#b19cd9] mt-3 text-lg">بوتات نشطة</p>
             </div>
           </div>
-          <div class="mt-10 text-center">
-            <p class="text-2xl text-[#b19cd9]">تاريخ إنشاء السيرفر: <span class="font-bold text-[#c8b6ff]">15 مارس 2023</span></p>
-          </div>
         </div>
 
-        <!-- قسم تسجيل الدوام -->
+        <!-- قسم الدوام -->
         <div id="session" class="tab-content hidden">
           <div class="max-w-2xl mx-auto">
             <div class="glass p-10 rounded-3xl shadow-2xl">
-              <h3 class="text-4xl font-black text-center mb-8">جلسة العمل الحالية</h3>
+              <h3 class="text-4xl font-black text-center mb-8 text-[#c8b6ff]">جلسة العمل الحالية</h3>
               <div class="text-center mb-10">
                 <div id="sessionTimer" class="timer text-8xl font-black text-[#c8b6ff]">00:00:00</div>
-                <p class="text-[#b19cd9] mt-4 text-xl">الوقت الحالي</p>
               </div>
               <div id="sessionControls" class="space-y-6">
-                <button onclick="startWork()" id="startBtn" class="w-full py-6 btn-lavender rounded-2xl font-black text-2xl shadow-xl transition">
-                  بدء الدوام
-                </button>
-                <button onclick="togglePause()" id="pauseBtn" class="hidden w-full py-6 bg-yellow-500/80 rounded-2xl font-black text-2xl shadow-xl transition">
-                  إيقاف مؤقت
-                </button>
-                <button onclick="stopWork()" id="stopBtn" class="hidden w-full py-6 bg-red-600/90 rounded-2xl font-black text-2xl shadow-xl transition hover:bg-red-700">
-                  إنهاء الدوام
-                </button>
+                <button onclick="startWork()" id="startBtn" class="w-full py-6 btn-lavender rounded-2xl font-black text-2xl shadow-xl transition hover:shadow-2xl">بدء الدوام</button>
+                <button onclick="togglePause()" id="pauseBtn" class="hidden w-full py-6 bg-yellow-600/80 rounded-2xl font-black text-2xl shadow-xl transition hover:shadow-2xl">إيقاف مؤقت</button>
+                <button onclick="stopWork()" id="stopBtn" class="hidden w-full py-6 bg-red-600/90 rounded-2xl font-black text-2xl shadow-xl transition hover:shadow-2xl hover:bg-red-700">إنهاء الدوام</button>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- السجلات -->
-        <div id="logs" class="tab-content hidden">
-          <h3 class="text-4xl font-black mb-8 text-center">سجل الدوامات</h3>
-          <div id="logsList" class="space-y-6 max-w-4xl mx-auto"></div>
+        <!-- قسم الرسائل -->
+        <div id="messages" class="tab-content hidden">
+          <h3 class="text-4xl font-black mb-10 text-center text-[#c8b6ff]">الرسائل والإشعارات</h3>
+
+          <!-- لوحة الأونر فقط -->
+          <div id="ownerPanel" class="hidden space-y-10 max-w-4xl mx-auto">
+            <div class="glass p-8 rounded-3xl">
+              <h4 class="text-2xl font-bold mb-6 text-[#c8b6ff]">إرسال رسالة خاصة</h4>
+              <input id="targetUser" type="text" placeholder="يوزر الشخص (مثل: Enjoy#0001)" class="w-full p-4 rounded-xl bg-[#0f0a1a] border border-[#9d82ff]/50 focus:border-[#c8b6ff] mb-4 text-white">
+              <textarea id="privateMsg" placeholder="اكتب الرسالة..." class="w-full p-4 rounded-xl bg-[#0f0a1a] border border-[#9d82ff]/50 focus:border-[#c8b6ff] h-32 mb-4 text-white"></textarea>
+              <select id="privatePriority" class="w-full p-4 rounded-xl bg-[#0f0a1a] border border-[#9d82ff]/50 mb-6 text-white">
+                <option value="danger">خطير (أحمر)</option>
+                <option value="warning">تحذير (برتقالي)</option>
+                <option value="important">مهم (أصفر)</option>
+                <option value="success">إيجابي (أخضر)</option>
+                <option value="info" selected>معلومة (أزرق)</option>
+              </select>
+              <button onclick="sendPrivateMessage()" class="w-full py-5 btn-lavender rounded-2xl font-black text-2xl">إرسال الرسالة</button>
+            </div>
+
+            <div class="glass p-8 rounded-3xl">
+              <h4 class="text-2xl font-bold mb-6 text-[#c8b6ff]">إرسال إعلان عام</h4>
+              <textarea id="publicMsg" placeholder="الرسالة العامة للجميع..." class="w-full p-4 rounded-xl bg-[#0f0a1a] border border-[#9d82ff]/50 focus:border-[#c8b6ff] h-32 mb-4 text-white"></textarea>
+              <select id="publicPriority" class="w-full p-4 rounded-xl bg-[#0f0a1a] border border-[#9d82ff]/50 mb-6 text-white">
+                <option value="danger">خطير</option>
+                <option value="warning">تحذير</option>
+                <option value="important">مهم</option>
+                <option value="success">إيجابي</option>
+                <option value="info" selected>معلومة</option>
+              </select>
+              <button onclick="sendPublicMessage()" class="w-full py-5 btn-lavender rounded-2xl font-black text-2xl">نشر للجميع</button>
+            </div>
+          </div>
+
+          <!-- رسائل المستخدم -->
+          <div class="mt-10 max-w-4xl mx-auto">
+            <h4 class="text-3xl font-black mb-6 text-[#c8b6ff]">رسائلي</h4>
+            <div id="myMessages" class="space-y-6"></div>
+          </div>
         </div>
 
-        <!-- إحصائيات السيرفر -->
-        <div id="stats" class="tab-content hidden text-center py-20">
-          <h3 class="text-5xl font-black text-[#c8b6ff]">إحصائيات مفصلة قريبًا...</h3>
+        <!-- السجلات -->
+        <div id="logs" class="tab-content hidden">
+          <h3 class="text-4xl font-black mb-8 text-center text-[#c8b6ff]">سجل الدوامات</h3>
+          <div id="logsList" class="space-y-6 max-w-4xl mx-auto"></div>
         </div>
 
       </div>
@@ -134,16 +165,11 @@
   </div>
 
   <script>
-    const WEBHOOK = "https://discord.com/api/webhooks/1444444487219679364/ZZJcgslKbMNl4y80lrbpoxo8G0ORLkOp3Q-1WmIFxBUEyW6qxBrU8hlX4VFmrklCCHCq";
+    // اسم الرتبة اللي تعطي صلاحيات الأونر
+    const OWNER_ROLE_NAME = "Owner"; // ← غيّرها إذا رتبتك اسمها غير "Owner"
 
     let user = null, totalSeconds = 0, sessionSeconds = 0, isWorking = false, isPaused = false, interval = null, logs = [];
-
-    async function sendWebhook(title, desc, color = 0xc8b6ff) {
-      if (!WEBHOOK.includes("webhooks")) return;
-      await fetch(WEBHOOK, { method: "POST", headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({ embeds: [{ title, description: desc, color, timestamp: new Date().toISOString() }] })
-      });
-    }
+    let messages = JSON.parse(localStorage.getItem('enjoy_messages') || '[]');
 
     function formatTime(s) {
       const h = String(Math.floor(s/3600)).padStart(2,'0');
@@ -156,29 +182,44 @@
       try {
         const res = await fetch('/api/user');
         const data = await res.json();
-        if (data.user) {
-          user = data.user;
-          totalSeconds = data.stats?.totalSeconds || 0;
-          logs = data.stats?.sessions || [];
-          document.getElementById('username').textContent = data.user.tag;
-          document.getElementById('avatar').src = data.user.avatar;
-          document.getElementById('totalTimeHeader').textContent = formatTime(totalSeconds);
-          document.getElementById('userInfo').classList.remove('hidden');
-          document.getElementById('protected').classList.add('hidden');
-          document.getElementById('app').classList.remove('hidden');
-          renderLogs();
+        if (!data.user) return;
 
-          if (data.stats?.currentSession) {
-            sessionSeconds = Math.floor((Date.now() - data.stats.currentSession.start - (data.stats.currentSession.pausedTime||0)) / 1000);
-            isWorking = true; isPaused = data.stats.currentSession.isPaused;
-            document.getElementById('startBtn').classList.add('hidden');
-            document.getElementById('pauseBtn').classList.remove('hidden');
-            document.getElementById('stopBtn').classList.remove('hidden');
-            document.getElementById('pauseBtn').textContent = isPaused ? 'استئناف' : 'إيقاف مؤقت';
-            startTimer();
-          }
+        user = data.user;
+        totalSeconds = data.stats?.totalSeconds || 0;
+        logs = data.stats?.sessions || [];
+
+        // تحديد الرتبة من الباك إند (يفترض إن الـ API يرجع roles)
+        const isOwner = data.user.roles?.includes(OWNER_ROLE_NAME) || false;
+
+        document.getElementById('username').textContent = data.user.tag || data.user.username;
+        document.getElementById('userRole').textContent = isOwner ? "المالك" : "عضو";
+        document.getElementById('avatar').src = `https://cdn.discordapp.com/avatars/${data.user.id}/${data.user.avatar}.png` || "https://cdn.discordapp.com/embed/avatars/0.png";
+        document.getElementById('totalTimeHeader').textContent = formatTime(totalSeconds);
+
+        document.getElementById('userInfo').classList.remove('hidden');
+        document.getElementById('protected').classList.add('hidden');
+        document.getElementById('app').classList.remove('hidden');
+
+        if (isOwner) {
+          document.getElementById('ownerPanel').classList.remove('hidden');
         }
-      } catch(e) {}
+
+        if (data.stats?.currentSession) {
+          sessionSeconds = Math.floor((Date.now() - data.stats.currentSession.start - (data.stats.currentSession.pausedTime || 0)) / 1000);
+          isWorking = true; isPaused = data.stats.currentSession.isPaused || false;
+          document.getElementById('startBtn').classList.add('hidden');
+          document.getElementById('pauseBtn').classList.remove('hidden');
+          document.getElementById('stopBtn').classList.remove('hidden');
+          document.getElementById('pauseBtn').textContent = isPaused ? 'استئناف' : 'إيقاف مؤقت';
+          document.getElementById('pauseBtn').style.background = isPaused ? '#22c55e' : '#f97316';
+          startTimer();
+        }
+
+        renderLogs();
+        renderMessages();
+      } catch (e) {
+        console.error("خطأ في تحميل البيانات:", e);
+      }
     }
 
     function startTimer() {
@@ -193,30 +234,29 @@
     }
 
     async function startWork() {
-      await fetch('/api/start', {method:'POST'});
+      await fetch('/api/start', { method: 'POST' });
       isWorking = true; sessionSeconds = 0; isPaused = false;
       document.getElementById('startBtn').classList.add('hidden');
       document.getElementById('pauseBtn').classList.remove('hidden');
       document.getElementById('stopBtn').classList.remove('hidden');
       startTimer();
-      logs.unshift({ type:'in', time:new Date().toLocaleString('ar-SA') });
-      sendWebhook("بدء دوام", `${user.tag} بدأ الدوام`);
+      logs.unshift({ type: 'in', time: new Date().toLocaleString('ar-SA') });
       renderLogs();
     }
 
     async function togglePause() {
       isPaused = !isPaused;
-      await fetch(isPaused ? '/api/pause' : '/api/resume', {method:'POST'});
+      await fetch(isPaused ? '/api/pause' : '/api/resume', { method: 'POST' });
       document.getElementById('pauseBtn').textContent = isPaused ? 'استئناف' : 'إيقاف مؤقت';
+      document.getElementById('pauseBtn').style.background = isPaused ? '#22c55e' : '#f97316';
     }
 
     async function stopWork() {
-      if (!confirm("متأكد؟")) return;
-      await fetch('/api/stop', {method:'POST'});
+      if (!confirm("متأكد من إنهاء الدوام؟")) return;
+      await fetch('/api/stop', { method: 'POST' });
       totalSeconds += sessionSeconds;
       document.getElementById('totalTimeHeader').textContent = formatTime(totalSeconds);
-      logs.unshift({ type:'out', time:new Date().toLocaleString('ar-SA'), duration:formatTime(sessionSeconds) });
-      sendWebhook("انتهاء دوام", `${user.tag} أنهى الدوام\nالمدة: ${formatTime(sessionSeconds)}`, 0xed4245);
+      logs.unshift({ type: 'out', time: new Date().toLocaleString('ar-SA'), duration: formatTime(sessionSeconds) });
       isWorking = false; sessionSeconds = 0;
       document.getElementById('startBtn').classList.remove('hidden');
       document.getElementById('pauseBtn').classList.add('hidden');
@@ -226,13 +266,52 @@
     }
 
     function renderLogs() {
-      document.getElementById('logsList').innerHTML = logs.map(l => `
-        <div class="glass p-8 rounded-3xl border-l-8 ${l.type==='in'?'border-green-500':'border-red-500'}">
-          <h4 class="text-2xl font-black">${l.type==='in'?'دخول دوام':'خروج دوام'}</h4>
+      const list = document.getElementById('logsList');
+      list.innerHTML = logs.map(l => `
+        <div class="glass p-8 rounded-2xl ${l.type === 'in' ? 'border-l-8 border-green-500' : 'border-l-8 border-red-500'}">
+          <h4 class="text-2xl font-black">${l.type === 'in' ? 'دخول دوام' : 'خروج دوام'}</h4>
           <p class="text-[#b19cd9]">${l.time}</p>
           ${l.duration ? `<p class="text-4xl font-black text-[#c8b6ff] mt-4">${l.duration}</p>` : ''}
         </div>
-      `).join('');
+      `).join('') || '<p class="text-center text-[#b19cd9]">لا يوجد سجل بعد</p>';
+    }
+
+    function renderMessages() {
+      const container = document.getElementById('myMessages');
+      const myMsgs = messages.filter(m => m.type === 'public' || m.target === user.tag);
+      container.innerHTML = myMsgs.length === 0 
+        ? '<p class="text-center text-[#b19cd9] text-xl">لا توجد رسائل حالياً</p>'
+        : myMsgs.map(m => `
+          <div class="glass p-6 rounded-2xl msg-${m.priority}">
+            <p class="font-bold text-xl">${m.title || (m.type === 'public' ? 'إعلان عام' : 'رسالة خاصة')}</p>
+            <p class="mt-3">${m.content}</p>
+            <p class="text-xs text-[#b19cd9] mt-4">${new Date(m.time).toLocaleString('ar-SA')}</p>
+          </div>
+        `).join('');
+    }
+
+    function sendPrivateMessage() {
+      const target = document.getElementById('targetUser').value.trim();
+      const content = document.getElementById('privateMsg').value.trim();
+      const priority = document.getElementById('privatePriority').value;
+      if (!target || !content) return alert("املأ كل الحقول");
+      messages.push({ type: 'private', target, content, priority, time: Date.now(), title: "رسالة من الإدارة" });
+      localStorage.setItem('enjoy_messages', JSON.stringify(messages));
+      alert("تم إرسال الرسالة بنجاح!");
+      document.getElementById('targetUser').value = '';
+      document.getElementById('privateMsg').value = '';
+      renderMessages();
+    }
+
+    function sendPublicMessage() {
+      const content = document.getElementById('publicMsg').value.trim();
+      const priority = document.getElementById('publicPriority').value;
+      if (!content) return alert("اكتب الرسالة أولاً");
+      messages.push({ type: 'public', content, priority, time: Date.now(), title: "إعلان رسمي" });
+      localStorage.setItem('enjoy_messages', JSON.stringify(messages));
+      alert("تم نشر الإعلان للجميع!");
+      document.getElementById('publicMsg').value = '';
+      renderMessages();
     }
 
     function openTab(tab) {
@@ -242,6 +321,7 @@
       event.target.classList.add('active');
     }
 
+    // تحميل البيانات عند فتح الصفحة
     loadUser();
   </script>
 </body>

@@ -19,17 +19,18 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json());
 
 app.use(session({
-  secret: process.env.SESSION_SECRET || 'super-secret-2025-enjoy-tracker',
+  secret: process.env.SESSION_SECRET || 'enjoy-tracker-2025',
   resave: false,
   saveUninitialized: false,
   cookie: {
-    secure: true,              // مهم جدًا في Render
+    secure: true,
     httpOnly: true,
-    sameSite: 'none',          // الحل السحري
-    domain: '.onrender.com',   // الحل السحري الثاني
+    sameSite: 'none',
     maxAge: 24 * 60 * 60 * 1000
   }
 }));
+
+app.set('trust proxy', 1); // السطر ده مهم جدًا في Render
 
 // ====================== الصفحة الرئيسية → login.html ======================
 app.get('/', (req, res) => {

@@ -13,6 +13,7 @@ const REDIRECT_URI = process.env.REDIRECT_URI || `https://${process.env.RENDER_E
 const REQUIRED_ROLES = (process.env.REQUIRED_ROLES || '').split(',').filter(r => r.trim());
 const PORT = process.env.PORT || 3000;
 const SESSION_SECRET = process.env.SESSION_SECRET || 'fallback-secret-change-in-render';
+const OWNER_ROLE_NAME = "Owner";
 
 // ====================== الإعدادات ======================
 app.use(express.static(path.join(__dirname, 'public')));

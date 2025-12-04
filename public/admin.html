@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ENJOY | لوحة الإدارة</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@700;900&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { font-family: 'Cairo', sans-serif; background: linear-gradient(135deg, #0f0a1a, #1a0033); color: #e9d5ff; }
+    .glass { background: rgba(26, 16, 51, 0.8); backdrop-filter: blur(20px); border: 1px solid #9d82ff; }
+    .btn-admin { background: linear-gradient(135deg, #ff6bcb, #9d82ff); }
+  </style>
+</head>
+<body class="min-h-screen">
+  <div class="p-10">
+    <h1 class="text-6xl font-black text-center mb-10 bg-gradient-to-r from-[#c8b6ff] to-[#ff6bcb] bg-clip-text text-transparent">
+      لوحة التحكم الإدارية
+    </h1>
+
+    <div id="adminPanel" class="max-w-6xl mx-auto space-y-10">
+
+      <!-- إرسال تحذير -->
+      <div class="glass p-10 rounded-3xl">
+        <h2 class="text-4xl font-black mb-6">إرسال تحذير</h2>
+        <input id="warnUser" placeholder="يوزر الشخص" class="w-full p-4 rounded-xl bg-black/50 border border-[#c8b6ff] mb-4">
+        <textarea id="warnMsg" placeholder="سبب التحذير..." class="w-full p-4 rounded-xl bg-black/50 border border-[#c8b6ff] h-32 mb-4"></textarea>
+        <button onclick="sendWarn()" class="w-full py-5 btn-admin rounded-2xl font-black text-2xl">إرسال التحذير</button>
+      </div>
+
+      <!-- إعلان عام -->
+      <div class="glass p-10 rounded-3xl">
+        <h2 class="text-4xl font-black mb-6">إعلان عام</h2>
+        <textarea id="announceMsg" placeholder="الإعلان..." class="w-full p-4 rounded-xl bg-black/50 border border-[#c8b6ff] h-40 mb-4"></textarea>
+        <button onclick="sendAnnounce()" class="w-full py-5 btn-admin rounded-2xl font-black text-2xl">نشر الإعلان</button>
+      </div>
+
+      <!-- عرض كل الدوامات -->
+      <div class="glass p-10 rounded-3xl">
+        <h2 class="text-4xl font-black mb-6">سجلات الدوام للجميع</h2>
+        <div id="allLogs"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    async function loadAdmin() {
+      const res = await fetch('/api/user');
+      const data = await res.json();
+      if (!data.user?.isHighRank) {
+        alert("غير مصرح لك!");
+        location.href = '/dashboard.html';
+      }
+      document.getElementById('adminPanel').innerHTML += `<p class="text-center text-2xl">مرحباً ${data.user.level} ${data.user.tag}</p>`;
+    }
+
+    function sendWarn() { alert("تم إرسال التحذير!"); }
+    function sendAnnounce() { alert("تم النشر!"); }
+
+    loadAdmin();
+  </script>
+</body>
+</html>
